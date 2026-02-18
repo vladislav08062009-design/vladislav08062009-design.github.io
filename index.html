@@ -2,181 +2,180 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Спортивный опрос PRO</title>
-
+<title>Опрос по физкультуре</title>
 <style>
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-    color: white;
+body{
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg,#4facfe,#00f2fe);
+  margin:0;
+  padding:20px;
+  color:#333;
 }
 
-.container {
-    max-width: 900px;
-    margin: auto;
-    padding: 20px;
+.container{
+  max-width:800px;
+  margin:auto;
+  background:white;
+  padding:25px;
+  border-radius:20px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.2);
 }
 
-h1 {
-    text-align: center;
-    margin-bottom: 30px;
+h1{
+  text-align:center;
 }
 
-.question {
-    background: rgba(255,255,255,0.08);
-    padding: 20px;
-    border-radius: 15px;
-    margin-bottom: 25px;
+.question{
+  margin-bottom:25px;
+  padding-bottom:15px;
+  border-bottom:1px solid #ddd;
 }
 
-button {
-    width: 100%;
-    padding: 12px;
-    margin: 6px 0;
-    border: none;
-    border-radius: 8px;
-    font-size: 15px;
-    cursor: pointer;
-    background: #00c853;
-    color: white;
-    font-weight: bold;
-    transition: 0.3s;
+.option{
+  margin:8px 0;
+  padding:10px;
+  border-radius:10px;
+  background:#f3f3f3;
+  cursor:pointer;
+  transition:0.2s;
 }
 
-button:hover {
-    background: #00e676;
+.option:hover{
+  background:#e0f0ff;
 }
 
-button:disabled {
-    background: #555;
-    cursor: not-allowed;
+.option.disabled{
+  pointer-events:none;
+  opacity:0.7;
 }
 
-.bar-container {
-    background: rgba(255,255,255,0.15);
-    border-radius: 10px;
-    margin: 5px 0;
-    overflow: hidden;
+.bar{
+  height:10px;
+  background:#4facfe;
+  border-radius:10px;
+  margin-top:5px;
+  width:0%;
+  transition:0.4s;
 }
 
-.bar {
-    height: 20px;
-    background: #00e676;
-    text-align: right;
-    padding-right: 5px;
-    font-size: 12px;
-    line-height: 20px;
+.percent{
+  font-size:12px;
+  color:#555;
+}
+
+button{
+  display:block;
+  margin:20px auto;
+  padding:12px 25px;
+  font-size:16px;
+  border:none;
+  border-radius:10px;
+  background:#4facfe;
+  color:white;
+  cursor:pointer;
+}
+
+button:hover{
+  background:#2f8cff;
 }
 </style>
 </head>
-
 <body>
 
 <div class="container">
-<h1>🏆 Спортивный опрос</h1>
-<div id="survey"></div>
+<h1>Опрос по физкультуре</h1>
+
+<div id="quiz"></div>
+
+<button onclick="showResults()">Показать голоса</button>
+
 </div>
 
 <script>
 
 const questions = [
 {
-    question: "Как часто ты занимаешься спортом?",
-    options: ["1-3 раза", "4-5 раз", "5 и более"]
+q:"Как часто ты занимаешься спортом?",
+a:["1-3 раза","4-5 раз","5 и более"]
 },
 {
-    question: "Каким спортом ты занимаешься?",
-    options: ["Волейбол, баскетбол", "Футбол, хоккей", "Другое"]
+q:"Каким спортом ты занимаешься?",
+a:["Волейбол, баскетбол","Футбол, хоккей","Другое"]
 },
 {
-    question: "Нравится ли тебе ходить на этот вид спорта?",
-    options: ["Да", "Скорее да", "Скорее нет", "Нет"]
+q:"Нравится ли тебе ходить на этот вид спорта?",
+a:["Да","Скорее да","Скорее нет","Нет"]
 },
 {
-    question: "Как ты чувствуешь себя после занятий физрой?",
-    options: ["Хорошо, весело", "Нормально", "Не очень", "Плохо"]
+q:"Как ты чувствуешь себя после занятий физрой?",
+a:["Хорошо, весело","Нормально","Не очень","Плохо"]
 },
 {
-    question: "Нравится ли тебе занятия физкультуры?",
-    options: ["Да", "Нет"]
+q:"Нравятся ли тебе занятия физкультуры?",
+a:["Да","Нет"]
 },
 {
-    question: "Какие эмоции вызывает у тебя физкультура и занятия спортом?",
-    options: ["Положительные", "Отрицательные", "Никакие"]
+q:"Какие эмоции вызывает у тебя физкультура?",
+a:["Положительные","Отрицательные","Никакие"]
 }
 ];
 
-let votes = JSON.parse(localStorage.getItem("votes")) || {};
-let voted = JSON.parse(localStorage.getItem("voted")) || {};
+const votes = questions.map(q => new Array(q.a.length).fill(0));
+const answered = new Array(questions.length).fill(false);
 
-function initSurvey() {
-    const surveyDiv = document.getElementById("survey");
-    surveyDiv.innerHTML = "";
+const quiz = document.getElementById("quiz");
 
-    questions.forEach((q, index) => {
+questions.forEach((item,i)=>{
+  const div = document.createElement("div");
+  div.className="question";
+  div.innerHTML = `<h3>${i+1}. ${item.q}</h3>`;
 
-        if (!votes[index]) {
-            votes[index] = new Array(q.options.length).fill(0);
-        }
+  item.a.forEach((ans,j)=>{
+    const opt = document.createElement("div");
+    opt.className="option";
+    opt.innerHTML = `
+      ${ans}
+      <div class="bar"></div>
+      <div class="percent"></div>
+    `;
 
-        const questionDiv = document.createElement("div");
-        questionDiv.classList.add("question");
+    opt.onclick = ()=>{
+      if(answered[i]) return;
 
-        const title = document.createElement("h3");
-        title.textContent = q.question;
-        questionDiv.appendChild(title);
+      votes[i][j]++;
+      answered[i]=true;
 
-        q.options.forEach((option, i) => {
+      const options = div.querySelectorAll(".option");
+      options.forEach(o=>o.classList.add("disabled"));
 
-            const btn = document.createElement("button");
-            btn.textContent = option;
+      updateQuestion(i,div);
+    };
 
-            if (voted[index]) {
-                btn.disabled = true;
-            }
+    div.appendChild(opt);
+  });
 
-            btn.onclick = () => {
-                if (!voted[index]) {
-                    votes[index][i]++;
-                    voted[index] = true;
+  quiz.appendChild(div);
+});
 
-                    localStorage.setItem("votes", JSON.stringify(votes));
-                    localStorage.setItem("voted", JSON.stringify(voted));
+function updateQuestion(i,div){
+  const total = votes[i].reduce((a,b)=>a+b,0);
+  const options = div.querySelectorAll(".option");
 
-                    initSurvey();
-                }
-            };
+  votes[i].forEach((v,idx)=>{
+    const percent = total ? Math.round(v/total*100) : 0;
+    const bar = options[idx].querySelector(".bar");
+    const text = options[idx].querySelector(".percent");
 
-            questionDiv.appendChild(btn);
-        });
-
-        // Графики
-        const totalVotes = votes[index].reduce((a, b) => a + b, 0);
-
-        votes[index].forEach((count, i) => {
-
-            const percent = totalVotes === 0 ? 0 : 
-                Math.round((count / totalVotes) * 100);
-
-            const barContainer = document.createElement("div");
-            barContainer.classList.add("bar-container");
-
-            const bar = document.createElement("div");
-            bar.classList.add("bar");
-            bar.style.width = percent + "%";
-            bar.textContent = percent + "% (" + count + ")";
-
-            barContainer.appendChild(bar);
-            questionDiv.appendChild(barContainer);
-        });
-
-        surveyDiv.appendChild(questionDiv);
-    });
+    bar.style.width = percent+"%";
+    text.textContent = percent+"%";
+  });
 }
 
-initSurvey();
+function showResults(){
+  document.querySelectorAll(".question").forEach((div,i)=>{
+    updateQuestion(i,div);
+  });
+}
 
 </script>
 
