@@ -1,119 +1,148 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <title>Онлайн-опрос</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Опрос о спорте</title>
 
-        .container {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            width: 400px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-        }
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #4facfe, #00f2fe);
+    margin: 0;
+    padding: 20px;
+}
 
-        h2 {
-            margin-bottom: 20px;
-        }
+.container {
+    max-width: 700px;
+    margin: auto;
+    background: white;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
 
-        button {
-            width: 100%;
-            padding: 10px;
-            margin-top: 10px;
-            border: none;
-            border-radius: 8px;
-            background: #667eea;
-            color: white;
-            cursor: pointer;
-            font-size: 16px;
-        }
+h1 {
+    text-align: center;
+}
 
-        button:hover {
-            background: #5563d6;
-        }
+.question {
+    margin-bottom: 25px;
+}
 
-        .result {
-            margin-top: 10px;
-            background: #f1f1f1;
-            padding: 8px;
-            border-radius: 6px;
-        }
-    </style>
+button {
+    padding: 10px 15px;
+    margin: 5px 0;
+    width: 100%;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    background: #4facfe;
+    color: white;
+    transition: 0.3s;
+}
+
+button:hover {
+    background: #00c6ff;
+}
+
+.result {
+    margin-top: 10px;
+    font-size: 14px;
+    background: #f0f0f0;
+    padding: 5px;
+    border-radius: 5px;
+}
+</style>
 </head>
+
 <body>
 
 <div class="container">
-    <h2>Как часто в неделю вы занимаетесь спортом?</h2>
-
-    <div id="poll">
-        <label><input type="radio" name="vote" value="0"> 1-3</label><br>
-        <label><input type="radio" name="vote" value="1"> 4</label><br>
-        <label><input type="radio" name="vote" value="2"> 5</label><br>
-        <label><input type="radio" name="vote" value="3"> 5 и более</label><br>
-
-        <button onclick="vote()">Проголосовать</button>
-    </div>
-
-    <div id="results" style="display:none;"></div>
+<h1>Опрос о спорте</h1>
+<div id="survey"></div>
 </div>
 
 <script>
-    const options = ["JavaScript", "Python", "C++", "Java"];
 
-    let votes = JSON.parse(localStorage.getItem("votes")) || [0, 0, 0, 0];
-    let hasVoted = localStorage.getItem("hasVoted");
+const questions = [
+{
+    question: "Как часто ты занимаешься спортом?",
+    options: ["1-3 раза", "4-5 раз", "5 и более"]
+},
+{
+    question: "Каким спортом ты занимаешься?",
+    options: ["Волейбол, баскетбол", "Футбол, хоккей", "Другое"]
+},
+{
+    question: "Нравится ли тебе ходить на этот вид спорта?",
+    options: ["Да", "Скорее да", "Скорее нет", "Нет"]
+},
+{
+    question: "Как ты чувствуешь себя после занятий физрой?",
+    options: ["Хорошо, весело", "Нормально", "Не очень", "Плохо"]
+},
+{
+    question: "Нравится ли тебе занятия физкультуры?",
+    options: ["Да", "Нет"]
+},
+{
+    question: "Какие эмоции вызывает у тебя физкультура и занятия спортом?",
+    options: ["Положительные", "Отрицательные", "Никакие"]
+}
+];
 
-    function vote() {
-        if (hasVoted) {
-            showResults();
-            return;
-        }
+let votes = {};
 
-        const selected = document.querySelector('input[name="vote"]:checked');
-        if (!selected) {
-            alert("Выберите вариант!");
-            return;
-        }
+function initSurvey() {
+    const surveyDiv = document.getElementById("survey");
 
-        votes[selected.value]++;
-        localStorage.setItem("votes", JSON.stringify(votes));
-        localStorage.setItem("hasVoted", "true");
-        hasVoted = true;
+    questions.forEach((q, index) => {
+        votes[index] = new Array(q.options.length).fill(0);
 
-        showResults();
-    }
+        const questionDiv = document.createElement("div");
+        questionDiv.classList.add("question");
 
-    function showResults() {
-        document.getElementById("poll").style.display = "none";
-        const resultsDiv = document.getElementById("results");
-        resultsDiv.style.display = "block";
-        resultsDiv.innerHTML = "<h3>Результаты:</h3>";
+        const title = document.createElement("h3");
+        title.textContent = q.question;
+        questionDiv.appendChild(title);
 
-        const total = votes.reduce((a, b) => a + b, 0);
+        q.options.forEach((option, i) => {
+            const btn = document.createElement("button");
+            btn.textContent = option;
 
-        options.forEach((option, index) => {
-            const percent = total ? Math.round((votes[index] / total) * 100) : 0;
-            resultsDiv.innerHTML += `
-                <div class="result">
-                    ${option}: ${votes[index]} голосов (${percent}%)
-                </div>
-            `;
+            btn.onclick = () => {
+                votes[index][i]++;
+                showResults(index, questionDiv);
+            };
+
+            questionDiv.appendChild(btn);
         });
-    }
 
-    if (hasVoted) {
-        showResults();
-    }
+        surveyDiv.appendChild(questionDiv);
+    });
+}
+
+function showResults(questionIndex, container) {
+    let oldResults = container.querySelectorAll(".result");
+    oldResults.forEach(el => el.remove());
+
+    const results = document.createElement("div");
+
+    votes[questionIndex].forEach((count, i) => {
+        const resultLine = document.createElement("div");
+        resultLine.classList.add("result");
+        resultLine.textContent = 
+            questions[questionIndex].options[i] + " — Голосов: " + count;
+        results.appendChild(resultLine);
+    });
+
+    container.appendChild(results);
+}
+
+initSurvey();
+
 </script>
 
 </body>
