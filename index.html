@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Спортивный опрос</title>
+<title>Спортивный опрос PRO</title>
 
 <style>
 body {
@@ -14,23 +14,21 @@ body {
 }
 
 .container {
-    max-width: 800px;
+    max-width: 900px;
     margin: auto;
     padding: 20px;
 }
 
 h1 {
     text-align: center;
-    text-transform: uppercase;
-    letter-spacing: 2px;
+    margin-bottom: 30px;
 }
 
 .question {
-    background: rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.08);
     padding: 20px;
     border-radius: 15px;
-    margin-bottom: 20px;
-    backdrop-filter: blur(10px);
+    margin-bottom: 25px;
 }
 
 button {
@@ -49,17 +47,27 @@ button {
 
 button:hover {
     background: #00e676;
-    transform: scale(1.03);
 }
 
-.result {
-    margin-top: 5px;
-    font-size: 14px;
-}
-
-.voted {
-    background: #ff5252 !important;
+button:disabled {
+    background: #555;
     cursor: not-allowed;
+}
+
+.bar-container {
+    background: rgba(255,255,255,0.15);
+    border-radius: 10px;
+    margin: 5px 0;
+    overflow: hidden;
+}
+
+.bar {
+    height: 20px;
+    background: #00e676;
+    text-align: right;
+    padding-right: 5px;
+    font-size: 12px;
+    line-height: 20px;
 }
 </style>
 </head>
@@ -105,6 +113,7 @@ let voted = JSON.parse(localStorage.getItem("voted")) || {};
 
 function initSurvey() {
     const surveyDiv = document.getElementById("survey");
+    surveyDiv.innerHTML = "";
 
     questions.forEach((q, index) => {
 
@@ -126,7 +135,6 @@ function initSurvey() {
 
             if (voted[index]) {
                 btn.disabled = true;
-                btn.classList.add("voted");
             }
 
             btn.onclick = () => {
@@ -137,31 +145,35 @@ function initSurvey() {
                     localStorage.setItem("votes", JSON.stringify(votes));
                     localStorage.setItem("voted", JSON.stringify(voted));
 
-                    updateSurvey();
+                    initSurvey();
                 }
             };
 
             questionDiv.appendChild(btn);
         });
 
-        const resultsDiv = document.createElement("div");
+        // Графики
+        const totalVotes = votes[index].reduce((a, b) => a + b, 0);
 
         votes[index].forEach((count, i) => {
-            const resultLine = document.createElement("div");
-            resultLine.classList.add("result");
-            resultLine.textContent =
-                q.options[i] + " — Голосов: " + count;
-            resultsDiv.appendChild(resultLine);
+
+            const percent = totalVotes === 0 ? 0 : 
+                Math.round((count / totalVotes) * 100);
+
+            const barContainer = document.createElement("div");
+            barContainer.classList.add("bar-container");
+
+            const bar = document.createElement("div");
+            bar.classList.add("bar");
+            bar.style.width = percent + "%";
+            bar.textContent = percent + "% (" + count + ")";
+
+            barContainer.appendChild(bar);
+            questionDiv.appendChild(barContainer);
         });
 
-        questionDiv.appendChild(resultsDiv);
         surveyDiv.appendChild(questionDiv);
     });
-}
-
-function updateSurvey() {
-    document.getElementById("survey").innerHTML = "";
-    initSurvey();
 }
 
 initSurvey();
