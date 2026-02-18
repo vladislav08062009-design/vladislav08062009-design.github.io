@@ -3,56 +3,63 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Опрос о спорте</title>
+<title>Спортивный опрос</title>
 
 <style>
 body {
-    font-family: Arial, sans-serif;
-    background: linear-gradient(135deg, #4facfe, #00f2fe);
     margin: 0;
-    padding: 20px;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    color: white;
 }
 
 .container {
-    max-width: 700px;
+    max-width: 800px;
     margin: auto;
-    background: white;
     padding: 20px;
-    border-radius: 15px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
 }
 
 h1 {
     text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 2px;
 }
 
 .question {
-    margin-bottom: 25px;
+    background: rgba(255,255,255,0.1);
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+    backdrop-filter: blur(10px);
 }
 
 button {
-    padding: 10px 15px;
-    margin: 5px 0;
     width: 100%;
+    padding: 12px;
+    margin: 6px 0;
     border: none;
     border-radius: 8px;
+    font-size: 15px;
     cursor: pointer;
-    font-size: 14px;
-    background: #4facfe;
+    background: #00c853;
     color: white;
+    font-weight: bold;
     transition: 0.3s;
 }
 
 button:hover {
-    background: #00c6ff;
+    background: #00e676;
+    transform: scale(1.03);
 }
 
 .result {
-    margin-top: 10px;
+    margin-top: 5px;
     font-size: 14px;
-    background: #f0f0f0;
-    padding: 5px;
-    border-radius: 5px;
+}
+
+.voted {
+    background: #ff5252 !important;
+    cursor: not-allowed;
 }
 </style>
 </head>
@@ -60,7 +67,7 @@ button:hover {
 <body>
 
 <div class="container">
-<h1>Опрос о спорте</h1>
+<h1>🏆 Спортивный опрос</h1>
 <div id="survey"></div>
 </div>
 
@@ -93,13 +100,17 @@ const questions = [
 }
 ];
 
-let votes = {};
+let votes = JSON.parse(localStorage.getItem("votes")) || {};
+let voted = JSON.parse(localStorage.getItem("voted")) || {};
 
 function initSurvey() {
     const surveyDiv = document.getElementById("survey");
 
     questions.forEach((q, index) => {
-        votes[index] = new Array(q.options.length).fill(0);
+
+        if (!votes[index]) {
+            votes[index] = new Array(q.options.length).fill(0);
+        }
 
         const questionDiv = document.createElement("div");
         questionDiv.classList.add("question");
@@ -109,36 +120,48 @@ function initSurvey() {
         questionDiv.appendChild(title);
 
         q.options.forEach((option, i) => {
+
             const btn = document.createElement("button");
             btn.textContent = option;
 
+            if (voted[index]) {
+                btn.disabled = true;
+                btn.classList.add("voted");
+            }
+
             btn.onclick = () => {
-                votes[index][i]++;
-                showResults(index, questionDiv);
+                if (!voted[index]) {
+                    votes[index][i]++;
+                    voted[index] = true;
+
+                    localStorage.setItem("votes", JSON.stringify(votes));
+                    localStorage.setItem("voted", JSON.stringify(voted));
+
+                    updateSurvey();
+                }
             };
 
             questionDiv.appendChild(btn);
         });
 
+        const resultsDiv = document.createElement("div");
+
+        votes[index].forEach((count, i) => {
+            const resultLine = document.createElement("div");
+            resultLine.classList.add("result");
+            resultLine.textContent =
+                q.options[i] + " — Голосов: " + count;
+            resultsDiv.appendChild(resultLine);
+        });
+
+        questionDiv.appendChild(resultsDiv);
         surveyDiv.appendChild(questionDiv);
     });
 }
 
-function showResults(questionIndex, container) {
-    let oldResults = container.querySelectorAll(".result");
-    oldResults.forEach(el => el.remove());
-
-    const results = document.createElement("div");
-
-    votes[questionIndex].forEach((count, i) => {
-        const resultLine = document.createElement("div");
-        resultLine.classList.add("result");
-        resultLine.textContent = 
-            questions[questionIndex].options[i] + " — Голосов: " + count;
-        results.appendChild(resultLine);
-    });
-
-    container.appendChild(results);
+function updateSurvey() {
+    document.getElementById("survey").innerHTML = "";
+    initSurvey();
 }
 
 initSurvey();
