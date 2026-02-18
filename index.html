@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Онлайн-опрос</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 400px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 8px;
+            background: #667eea;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background: #5563d6;
+        }
+
+        .result {
+            margin-top: 10px;
+            background: #f1f1f1;
+            padding: 8px;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Какой язык программирования вам нравится больше?</h2>
+
+    <div id="poll">
+        <label><input type="radio" name="vote" value="0"> JavaScript</label><br>
+        <label><input type="radio" name="vote" value="1"> Python</label><br>
+        <label><input type="radio" name="vote" value="2"> C++</label><br>
+        <label><input type="radio" name="vote" value="3"> Java</label><br>
+
+        <button onclick="vote()">Проголосовать</button>
+    </div>
+
+    <div id="results" style="display:none;"></div>
+</div>
+
+<script>
+    const options = ["JavaScript", "Python", "C++", "Java"];
+
+    let votes = JSON.parse(localStorage.getItem("votes")) || [0, 0, 0, 0];
+    let hasVoted = localStorage.getItem("hasVoted");
+
+    function vote() {
+        if (hasVoted) {
+            showResults();
+            return;
+        }
+
+        const selected = document.querySelector('input[name="vote"]:checked');
+        if (!selected) {
+            alert("Выберите вариант!");
+            return;
+        }
+
+        votes[selected.value]++;
+        localStorage.setItem("votes", JSON.stringify(votes));
+        localStorage.setItem("hasVoted", "true");
+        hasVoted = true;
+
+        showResults();
+    }
+
+    function showResults() {
+        document.getElementById("poll").style.display = "none";
+        const resultsDiv = document.getElementById("results");
+        resultsDiv.style.display = "block";
+        resultsDiv.innerHTML = "<h3>Результаты:</h3>";
+
+        const total = votes.reduce((a, b) => a + b, 0);
+
+        options.forEach((option, index) => {
+            const percent = total ? Math.round((votes[index] / total) * 100) : 0;
+            resultsDiv.innerHTML += `
+                <div class="result">
+                    ${option}: ${votes[index]} голосов (${percent}%)
+                </div>
+            `;
+        });
+    }
+
+    if (hasVoted) {
+        showResults();
+    }
+</script>
+
+</body>
+</html>
