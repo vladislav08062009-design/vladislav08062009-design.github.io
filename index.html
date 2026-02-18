@@ -2,291 +2,170 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>Опрос по физкультуре</title>
+<title>Опрос о спорте</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 body{
-  font-family: Arial, sans-serif;
-  background: linear-gradient(135deg,#4facfe,#00f2fe);
-  margin:0;
-  padding:20px;
-  color:#333;
-}
-
-.container{
-  max-width:800px;
-  margin:auto;
-  background:white;
-  padding:25px;
-  border-radius:20px;
-  box-shadow:0 10px 25px rgba(0,0,0,0.2);
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg,#8B0000,#ff0000);
+    color:white;
+    margin:0;
+    padding:20px;
 }
 
 h1{
-  text-align:center;
+    text-align:center;
 }
 
 .question{
-  margin-bottom:25px;
-  padding-bottom:15px;
-  border-bottom:1px solid #ddd;
-}
-
-.option{
-  margin:8px 0;
-  padding:10px;
-  border-radius:10px;
-  background:#f3f3f3;
-  cursor:pointer;
-  transition:0.2s;
-}
-
-.option:hover{
-  background:#e0f0ff;
-}
-
-.option.disabled{
-  pointer-events:none;
-  opacity:0.7;
-}
-
-.bar{
-  height:10px;
-  background:#4facfe;
-  border-radius:10px;
-  margin-top:5px;
-  width:0%;
-  transition:0.4s;
-}
-
-.percent{
-  font-size:12px;
-  color:#555;
+    background: rgba(255,255,255,0.1);
+    padding:20px;
+    border-radius:15px;
+    margin-bottom:30px;
+    box-shadow:0 0 15px rgba(0,0,0,0.4);
 }
 
 button{
-  display:block;
-  margin:20px auto;
-  padding:12px 25px;
-  font-size:16px;
-  border:none;
-  border-radius:10px;
-  background:#4facfe;
-  color:white;
-  cursor:pointer;
+    display:block;
+    width:100%;
+    margin:8px 0;
+    padding:10px;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    font-size:16px;
+    background:#ff4d4d;
+    color:white;
+    transition:0.3s;
 }
 
 button:hover{
-  background:#2f8cff;
-}
-  <style>
-
-*{
-  box-sizing:border-box;
+    background:#ff1a1a;
 }
 
-body{
-  font-family: "Segoe UI", Arial, sans-serif;
-  margin:0;
-  min-height:100vh;
-  background: linear-gradient(135deg,#667eea,#764ba2);
-  display:flex;
-  align-items:center;
-  justify-content:center;
+button:disabled{
+    background:gray;
+    cursor:not-allowed;
 }
 
-.container{
-  width:95%;
-  max-width:850px;
-  padding:30px;
-  border-radius:25px;
-  background: rgba(255,255,255,0.15);
-  backdrop-filter: blur(18px);
-  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
-  color:white;
+.result{
+    margin-top:10px;
 }
 
-h1{
-  text-align:center;
-  margin-bottom:30px;
-  font-size:32px;
+canvas{
+    background:white;
+    border-radius:10px;
+    margin-top:10px;
 }
-
-.question{
-  background: rgba(255,255,255,0.1);
-  padding:18px;
-  border-radius:18px;
-  margin-bottom:20px;
-  box-shadow:0 8px 25px rgba(0,0,0,0.25);
-  transition:0.3s;
-}
-
-.question:hover{
-  transform:translateY(-3px);
-}
-
-.question h3{
-  margin-top:0;
-}
-
-.option{
-  margin:10px 0;
-  padding:12px 14px;
-  border-radius:12px;
-  background: rgba(255,255,255,0.15);
-  cursor:pointer;
-  transition:0.25s;
-  position:relative;
-  overflow:hidden;
-}
-
-.option:hover{
-  background: rgba(255,255,255,0.3);
-  transform:scale(1.02);
-}
-
-.option.disabled{
-  pointer-events:none;
-  opacity:0.85;
-}
-
-.bar{
-  height:8px;
-  background: linear-gradient(90deg,#00f2fe,#4facfe);
-  border-radius:10px;
-  margin-top:8px;
-  width:0%;
-  transition:0.5s;
-}
-
-.percent{
-  font-size:13px;
-  opacity:0.9;
-  margin-top:3px;
-}
-
-button{
-  display:block;
-  margin:30px auto 0;
-  padding:14px 30px;
-  font-size:17px;
-  border:none;
-  border-radius:15px;
-  background: linear-gradient(45deg,#00f2fe,#4facfe);
-  color:white;
-  cursor:pointer;
-  font-weight:bold;
-  box-shadow:0 10px 25px rgba(0,0,0,0.3);
-  transition:0.25s;
-}
-
-button:hover{
-  transform:translateY(-2px);
-  box-shadow:0 15px 35px rgba(0,0,0,0.4);
-}
-
-button:active{
-  transform:scale(0.95);
-}
-
 </style>
 </head>
 <body>
 
-<div class="container">
-<h1>Опрос по физкультуре</h1>
+<h1>🏆 Опрос о спорте</h1>
 
-<div id="quiz"></div>
-
-<button onclick="showResults()">Показать голоса</button>
-
-</div>
+<div id="survey"></div>
 
 <script>
-
 const questions = [
 {
-q:"Как часто ты занимаешься спортом?",
-a:["1-3 раза","4-5 раз","5 и более"]
+    text:"Как часто ты занимаешься спортом?",
+    answers:["1-3 раза","4-5 раз","5 и более"]
 },
 {
-q:"Каким спортом ты занимаешься?",
-a:["Волейбол, баскетбол","Футбол, хоккей","Другое"]
+    text:"Каким спортом ты занимаешься?",
+    answers:["Волейбол, баскетбол","Футбол, хоккей","Другое"]
 },
 {
-q:"Нравится ли тебе ходить на этот вид спорта?",
-a:["Да","Скорее да","Скорее нет","Нет"]
+    text:"Нравится ли тебе ходить на этот вид спорта?",
+    answers:["Да","Скорее да","Скорее нет","Нет"]
 },
 {
-q:"Как ты чувствуешь себя после занятий физрой?",
-a:["Хорошо, весело","Нормально","Не очень","Плохо"]
+    text:"Как ты чувствуешь себя после занятий физрой?",
+    answers:["Хорошо, весело","Нормально","Не очень","Плохо"]
 },
 {
-q:"Нравятся ли тебе занятия физкультуры?",
-a:["Да","Нет"]
+    text:"Нравятся ли тебе занятия физкультуры?",
+    answers:["Да","Нет"]
 },
 {
-q:"Какие эмоции вызывает у тебя физкультура?",
-a:["Положительные","Отрицательные","Никакие"]
+    text:"Какие эмоции вызывает у тебя физкультура и спорт?",
+    answers:["Положительные","Отрицательные","Никакие"]
 }
 ];
 
-const votes = questions.map(q => new Array(q.a.length).fill(0));
-const answered = new Array(questions.length).fill(false);
+let votes = JSON.parse(localStorage.getItem("votes")) || questions.map(q => new Array(q.answers.length).fill(0));
+let voted = JSON.parse(localStorage.getItem("voted")) || {};
 
-const quiz = document.getElementById("quiz");
+const surveyDiv = document.getElementById("survey");
 
-questions.forEach((item,i)=>{
-  const div = document.createElement("div");
-  div.className="question";
-  div.innerHTML = `<h3>${i+1}. ${item.q}</h3>`;
+questions.forEach((q,index)=>{
+    const div = document.createElement("div");
+    div.className="question";
 
-  item.a.forEach((ans,j)=>{
-    const opt = document.createElement("div");
-    opt.className="option";
-    opt.innerHTML = `
-      ${ans}
-      <div class="bar"></div>
-      <div class="percent"></div>
-    `;
+    const title = document.createElement("h3");
+    title.textContent = q.text;
+    div.appendChild(title);
 
-    opt.onclick = ()=>{
-      if(answered[i]) return;
+    q.answers.forEach((ans,i)=>{
+        const btn = document.createElement("button");
+        btn.textContent = ans;
 
-      votes[i][j]++;
-      answered[i]=true;
+        if(voted[index]) btn.disabled = true;
 
-      const options = div.querySelectorAll(".option");
-      options.forEach(o=>o.classList.add("disabled"));
+        btn.onclick = ()=>{
+            if(!voted[index]){
+                votes[index][i]++;
+                voted[index]=true;
+                localStorage.setItem("votes",JSON.stringify(votes));
+                localStorage.setItem("voted",JSON.stringify(voted));
+                render();
+            }
+        };
 
-      updateQuestion(i,div);
-    };
+        div.appendChild(btn);
+    });
 
-    div.appendChild(opt);
-  });
+    const result = document.createElement("div");
+    result.className="result";
+    result.id="result"+index;
+    div.appendChild(result);
 
-  quiz.appendChild(div);
+    const canvas = document.createElement("canvas");
+    canvas.id="chart"+index;
+    div.appendChild(canvas);
+
+    surveyDiv.appendChild(div);
 });
 
-function updateQuestion(i,div){
-  const total = votes[i].reduce((a,b)=>a+b,0);
-  const options = div.querySelectorAll(".option");
+function render(){
+    questions.forEach((q,index)=>{
+        const total = votes[index].reduce((a,b)=>a+b,0);
+        const resultDiv = document.getElementById("result"+index);
+        resultDiv.innerHTML="";
 
-  votes[i].forEach((v,idx)=>{
-    const percent = total ? Math.round(v/total*100) : 0;
-    const bar = options[idx].querySelector(".bar");
-    const text = options[idx].querySelector(".percent");
+        q.answers.forEach((ans,i)=>{
+            const percent = total ? ((votes[index][i]/total)*100).toFixed(1) : 0;
+            resultDiv.innerHTML += `<div>${ans}: ${votes[index][i]} голосов (${percent}%)</div>`;
+        });
 
-    bar.style.width = percent+"%";
-    text.textContent = percent+"%";
-  });
+        new Chart(document.getElementById("chart"+index),{
+            type:"bar",
+            data:{
+                labels:q.answers,
+                datasets:[{
+                    data:votes[index],
+                    backgroundColor:"red"
+                }]
+            },
+            options:{
+                plugins:{legend:{display:false}},
+                scales:{y:{beginAtZero:true}}
+            }
+        });
+    });
 }
 
-function showResults(){
-  document.querySelectorAll(".question").forEach((div,i)=>{
-    updateQuestion(i,div);
-  });
-}
-
+render();
 </script>
 
 </body>
