@@ -3,44 +3,47 @@
 <head>
 <meta charset="UTF-8">
 <title>Опрос о спорте</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
 body{
     font-family: Arial, sans-serif;
-    background: linear-gradient(135deg,#8B0000,#ff0000);
-    color:white;
     margin:0;
     padding:20px;
+    color:white;
+    background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
+    url("https://images.unsplash.com/photo-1517649763962-0c623066013b") no-repeat center center fixed;
+    background-size: cover;
 }
 
 h1{
     text-align:center;
+    margin-bottom:40px;
 }
 
 .question{
-    background: rgba(255,255,255,0.1);
+    background: rgba(0,0,0,0.6);
     padding:20px;
     border-radius:15px;
     margin-bottom:30px;
-    box-shadow:0 0 15px rgba(0,0,0,0.4);
+    box-shadow:0 0 20px rgba(0,0,0,0.5);
 }
 
 button{
     display:block;
     width:100%;
     margin:8px 0;
-    padding:10px;
+    padding:12px;
     border:none;
     border-radius:10px;
     cursor:pointer;
     font-size:16px;
-    background:#ff4d4d;
+    background:#4CAF50;
     color:white;
     transition:0.3s;
 }
 
 button:hover{
-    background:#ff1a1a;
+    background:#45a049;
 }
 
 button:disabled{
@@ -52,10 +55,22 @@ button:disabled{
     margin-top:10px;
 }
 
-canvas{
-    background:white;
-    border-radius:10px;
-    margin-top:10px;
+.progress-bar{
+    background:rgba(255,255,255,0.2);
+    border-radius:20px;
+    overflow:hidden;
+    height:25px;
+    margin:5px 0 15px 0;
+}
+
+.progress{
+    height:100%;
+    background:linear-gradient(90deg,#00c6ff,#00ff99);
+    text-align:center;
+    line-height:25px;
+    color:black;
+    font-weight:bold;
+    transition:width 0.5s;
 }
 </style>
 </head>
@@ -130,10 +145,6 @@ questions.forEach((q,index)=>{
     result.id="result"+index;
     div.appendChild(result);
 
-    const canvas = document.createElement("canvas");
-    canvas.id="chart"+index;
-    div.appendChild(canvas);
-
     surveyDiv.appendChild(div);
 });
 
@@ -145,22 +156,15 @@ function render(){
 
         q.answers.forEach((ans,i)=>{
             const percent = total ? ((votes[index][i]/total)*100).toFixed(1) : 0;
-            resultDiv.innerHTML += `<div>${ans}: ${votes[index][i]} голосов (${percent}%)</div>`;
-        });
 
-        new Chart(document.getElementById("chart"+index),{
-            type:"bar",
-            data:{
-                labels:q.answers,
-                datasets:[{
-                    data:votes[index],
-                    backgroundColor:"red"
-                }]
-            },
-            options:{
-                plugins:{legend:{display:false}},
-                scales:{y:{beginAtZero:true}}
-            }
+            resultDiv.innerHTML += `
+                <div>${ans} — ${votes[index][i]} голосов (${percent}%)</div>
+                <div class="progress-bar">
+                    <div class="progress" style="width:${percent}%">
+                        ${percent}%
+                    </div>
+                </div>
+            `;
         });
     });
 }
